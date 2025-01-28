@@ -1,0 +1,187 @@
+---
+title: "Homework_2"
+author: "Maha Siva"
+date: "2025-01-27"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Question 1 
+```{r, include=FALSE, echo=FALSE }
+
+profs <- read.csv("/Users/mahasivasubramanian/Desktop/profs.csv")
+library(ggplot2)
+```
+
+### Part A
+```{r, echo=FALSE, message= FALSE}
+ggplot(profs, aes(x=eval)) + geom_histogram(fill = "lightblue", color = "lightblue", bins = 30) + labs(x= "Evaluation Scores(1-5)", y="Count", title= "Distribution of Evalutation Scores") + theme_minimal()
+```
+
+From the distribution of evaluation scores, we can see that there are two peaks of 4. The graph also shows considerable skew to the left, indicating that most of the data set has higher evaluation of scores; this directly coincides with the median of 4. 
+
+## Part B 
+```{r, echo=FALSE, message=FALSE}
+ggplot(profs, aes(x=eval, y=native)) + geom_boxplot(fill="lightblue", color="black") + labs(x = "Evaluation Scores", y="Native English Speaker(Y/N)", title = "Distribution of Evaluations Scores With Native and Non-native English Speakers ")
+
+```
+We can compare the two distributions of evaluation scores within the context of whether or not a professor was a native English speaker. We see that the professors who are native English Speakers, typically have a higher spread of data that had higher evaluation scores, indicating that they are generally rated higher. We can also compare this numerically with the median of native English speakers be higher than the median of non-native English speakers. 
+
+## Part C 
+```{r, echo = FALSE, message=FALSE}
+ggplot(profs, aes(x=eval)) + geom_histogram(fill="lightblue", color="black") + facet_wrap(~gender) + labs(x= "Course Evaluation Scores", y="Count", title="Distribution of Course Evaluation Scores with Male and Female Professors")
+
+
+```
+
+## Part D 
+```{r, echo= FALSE, message=FALSE}
+ggplot(profs, aes(x=beauty, y=eval)) + geom_point(fill="purple", color="purple") + labs(x="Beauty Rating", y="Evaluation Scores", title="Beauty Rating vs. Course Evaluation Scores")
+
+cor(profs$beauty,profs$eval)
+
+```
+
+
+# Question 2 
+```{r, include=FALSE, echo=FALSE, message=FALSE}
+bikes <- read.csv("/Users/mahasivasubramanian/Desktop/bikeshare.csv")
+
+```
+
+### Part A 
+```{r}
+library(dplyr)
+hours <- group_by(bikes,hr)
+hours <- summarize(hours,average=mean(total, na.rm = TRUE))
+ggplot(hours, aes(x=hr, y=average)) + geom_line(fill="orange", color="orange") + labs(x="Hour (24hr)", y="Number of Rentals", title="Average Hourly Bike Rentals Across Hours")
+
+```
+
+### Part B
+
+```{r, echo=FALSE, message=FALSE}
+library(tibble)
+library(dplyr)
+as_tibble(bikes)
+
+bikes <- bikes %>%
+  mutate(workingday = replace(workingday, workingday == 1, "Yes")) %>%
+  mutate(workingday = replace(workingday, workingday == 0, "No"))
+
+bikessum <- bikes %>%
+  group_by(workingday,hr) %>%
+  summarise(avg_biking= mean(total, na.rm = TRUE), .groups="drop")
+
+ggplot(bikessum, aes(x=hr, y=avg_biking)) + geom_line() + facet_wrap(~workingday) + labs(x="Hour (24h)", y="Number of Rentals", title="Average Rentals By Hour of The Day")
+
+
+```
+### Part C
+```{r, echo=FALSE, message=FALSE}
+bikes9am <- filter(bikes, hr==9)
+#bikes9am <- bikes %>%
+#  group_by(weathersit,workingday) %>%
+#  summarize(average = round(mean(total),2)) #%>%
+  #mutate(weathersit = replace(weathersit, weathersit == 1, "Clear")) %>%
+  #mutate(weathersit = replace(weathersit, weathersit == 2, "Mist")) %>%
+  #mutate(weathersit = replace(weathersit, weathersit == 3, "Light Weather")) %>%
+  #mutate(weathersit = replace(weathersit, weathersit == 4, "Heavy Weather"))
+
+#bikes9am <- group_by(bikes9am, weathersit,workingday)
+#bikes9am <- summarize(bikes9am, average = mean(total))
+
+avg_bikes <- bikes9am %>%
+  group_by(weathersit,workingday) %>%
+  summarize(average = mean(total))
+
+
+ggplot(avg_bikes) + geom_col(aes(x=weathersit, y=average)) + facet_wrap(~workingday) + labs(x="Weather Severity", y="Count of Ridership", title="Average Ridership by Weather Situation at 9 AM")
+```
+
+# Problem 3 
+
+```{r}
+capmetro <- read.csv("/Users/mahasivasubramanian/Desktop/capmetro_UT.csv")
+capmetro = mutate(capmetro,
+day_of_week = factor(day_of_week,
+levels=c("Mon", "Tue", "Wed","Thu", "Fri", "Sat", "Sun")),
+month = factor(month,
+levels=c("Sep", "Oct","Nov"))) 
+```
+
+### Graph1
+```{r, echo=FALSE, message = FALSE}
+capmetro_sum <- capmetro %>%
+  group_by(day_of_week,hour_of_day,month) %>%
+  summarize(avg_boarding = mean(boarding, na.rm = TRUE), .groups="drop")
+
+ggplot(capmetro_sum, aes(x=hour_of_day, y=avg_boarding, color=month)) + facet_wrap(~day_of_week) + geom_line() + labs(x= "Hour of Day", y="Number of Boarding", title="Average Boardings by Hour, Week, and Month")
+
+```
+### Graph2 
+```{r, echo=FALSE, message=FALSE}
+ggplot(capmetro, aes(x=temperature, y=boarding, color=weekend)) + geom_point() + facet_wrap(~ hour_of_day) + labs(x="Temperature (°F)", y="Number of Boarding", title= "Boardings vs. Temperature Per Hour of the Day") + theme_minimal()
+
+
+```
+
+# Question 4 
+```{r, echo=FALSE, include= FALSE}
+billboard <- read.csv("/Users/mahasivasubramanian/Desktop/billboard.csv")
+
+```
+
+### Part A 
+
+```{r, echo=FALSE,}
+library(kableExtra)
+
+billboardstats <- billboard %>%
+  group_by(performer,song) %>%
+  summarise(weeks_on_chart = n()) %>%
+  arrange(desc(weeks_on_chart)) %>%
+  top_n(10, weeks_on_chart) 
+
+billboardstats %>%
+  head(10) %>%  # Display the first 10 rows
+  kable("latex", col.names = c("Performer", "Song", "Weeks on Chart")) %>%
+  kable_styling(latex_options = c("striped", "hover"))
+
+
+```
+
+### Part B
+```{r}
+new_music <- group_by(billboard, year, performer, song)
+new_music <- filter(new_music, year!= 1958 & year != 2021)
+new_music <- distinct(new_music, year, song)
+new_music <- group_by(new_music, year)
+new_music <- summarize(new_music, music=n())
+
+ggplot(new_music) + geom_line(aes(x=year, y=music)) + labs(x="Year", y="Number of Unique Songs", title= "Number of Unique Songs over Years ")
+
+```
+
+## Part C 
+```{r}
+pop_songs <- filter(billboard, weeks_on_chart>=10)
+
+perf_hits <- pop_songs %>%
+  group_by(performer) %>%
+  summarize(ten_week_hits = n_distinct(song)) %>%
+  filter(ten_week_hits >= 30)
+
+ggplot(perf_hits, aes(x= reorder(performer,ten_week_hits),y=ten_week_hits)) + geom_bar(stat = "identity", fill = "steelblue") + labs(
+    title = "Top 19 Artists with Most Ten-Week Hits on Billboard Top 100",
+    x = "Performer",
+    y = "Number of Ten-Week Hits"
+  ) + coord_flip() 
+head(pop_songs)
+
+```
+
+
