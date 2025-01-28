@@ -4,6 +4,7 @@ author: "Maha Siva"
 date: "2025-01-27"
 output: pdf_document
 ---
+link: https://github.com/MahaSiva1/Sds_313_hw_2 [https://github.com/MahaSiva1/Sds_313_hw_2]
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
@@ -37,36 +38,41 @@ ggplot(profs, aes(x=eval)) + geom_histogram(fill="lightblue", color="black") + f
 
 ```
 
+The distribution of the course evaluation scores is seen here in the context of male and female professors. Both graphs showcase similar skew as well as similar peaks at around 4. Because of the similarity of the two distributions, it is hard to determine if gender factors significantly into the ratings of professors.  
+
+
 ## Part D 
 ```{r, echo= FALSE, message=FALSE}
 ggplot(profs, aes(x=beauty, y=eval)) + geom_point(fill="purple", color="purple") + labs(x="Beauty Rating", y="Evaluation Scores", title="Beauty Rating vs. Course Evaluation Scores")
 
-cor(profs$beauty,profs$eval)
 
 ```
-
+The relationship between beauty rating and evaluation scores for professors can be shown in this graph. There appears to be a little association between beauty rating and evaluation scores, given the very random assortment of points. This would make sense as beauty if a very subjective thing and has little to do with a professor's capabilities- other than the potential bias it can have towards students (this is explained through a phenomena called the angel effect: people associate attractive people with good qualities, regardless if they actually display them.) To further justify, the correlation coefficient is `r cor(profs$beauty,profs$eval)` signifying a very poor correlation between our x and y variables. 
 
 # Question 2 
+
 ```{r, include=FALSE, echo=FALSE, message=FALSE}
 bikes <- read.csv("/Users/mahasivasubramanian/Desktop/bikeshare.csv")
 
 ```
 
+
 ### Part A 
-```{r}
+```{r, echo=FALSE, message=FALSE}
 library(dplyr)
 hours <- group_by(bikes,hr)
 hours <- summarize(hours,average=mean(total, na.rm = TRUE))
-ggplot(hours, aes(x=hr, y=average)) + geom_line(fill="orange", color="orange") + labs(x="Hour (24hr)", y="Number of Rentals", title="Average Hourly Bike Rentals Across Hours")
+ggplot(hours, aes(x=hr, y=average)) + geom_line(, color="orange") + labs(x="Hour (24hr)", y="Number of Rentals", title="Average Hourly Bike Rentals Across Hours")
 
 ```
+
+Here we see the association between the hour of day and the average hourly rental. There are some low points in the very early hours of the day and also the very late hours of the day. This makes sense as we think about the potential safety concerns of riding in the dark and many people might not be awake during this time. There are peaks around 9 AM and 4 PM which also can be interpreted as the weather is typically best at these times and many people are out in the day and could want to ride a bike.  
 
 ### Part B
 
 ```{r, echo=FALSE, message=FALSE}
 library(tibble)
 library(dplyr)
-as_tibble(bikes)
 
 bikes <- bikes %>%
   mutate(workingday = replace(workingday, workingday == 1, "Yes")) %>%
@@ -76,10 +82,13 @@ bikessum <- bikes %>%
   group_by(workingday,hr) %>%
   summarise(avg_biking= mean(total, na.rm = TRUE), .groups="drop")
 
-ggplot(bikessum, aes(x=hr, y=avg_biking)) + geom_line() + facet_wrap(~workingday) + labs(x="Hour (24h)", y="Number of Rentals", title="Average Rentals By Hour of The Day")
+ggplot(bikessum, aes(x=hr, y=avg_biking)) + geom_line() + facet_wrap(~workingday) + labs(x="Hour (24h)", y="Number of Rentals", title="Average Hourly Rentals on Working Days")
 
 
 ```
+Here we see the distribution of average hourly rentals in the context of working days. What is interesting about the working days is that you can observe the peaks being around 9AM and ~5PM which directly coincides with the average office work day. So, when people need to commute to get to the office or get back home, we can hypothesize that they would want to bike share. The non-working day graph does not have peaks and more of a rounded curve with high points being more later in the day (around noon) which can coincide with warmer weather and sunlight. 
+
+
 ### Part C
 ```{r, echo=FALSE, message=FALSE}
 bikes9am <- filter(bikes, hr==9)
@@ -99,12 +108,16 @@ avg_bikes <- bikes9am %>%
   summarize(average = mean(total))
 
 
-ggplot(avg_bikes) + geom_col(aes(x=weathersit, y=average)) + facet_wrap(~workingday) + labs(x="Weather Severity", y="Count of Ridership", title="Average Ridership by Weather Situation at 9 AM")
+ggplot(avg_bikes) + geom_col(aes(x=weathersit, y=average)) + facet_wrap(~workingday) + labs(x="Weather Severity", y="Count of Ridership", title="Average Ridership by Weather Situation at 9 AM and Working Day")
 ```
 
-# Problem 3 
+The graphs here share another similar story. We see that on working days, the count of ridership greatly increases for each level of weather severity as there is probably a higher demand during this time (could be because of many office hours/work days starting at 9AM). Another very interesting piece of information we can observe is how the ridership doubles even in more severe weather at 9 AM (this can also be observed in all the weather severity categories). 
 
-```{r}
+#### Take-home lesson: ridership increases the most during morning (9 AM) and evening (5PM) and the quantity of riders increases by double when it is a weekday.
+
+# Question 3 
+
+```{r, echo=FALSE, include=FALSE}
 capmetro <- read.csv("/Users/mahasivasubramanian/Desktop/capmetro_UT.csv")
 capmetro = mutate(capmetro,
 day_of_week = factor(day_of_week,
@@ -113,7 +126,7 @@ month = factor(month,
 levels=c("Sep", "Oct","Nov"))) 
 ```
 
-### Graph1
+### Graph 1
 ```{r, echo=FALSE, message = FALSE}
 capmetro_sum <- capmetro %>%
   group_by(day_of_week,hour_of_day,month) %>%
@@ -122,6 +135,9 @@ capmetro_sum <- capmetro %>%
 ggplot(capmetro_sum, aes(x=hour_of_day, y=avg_boarding, color=month)) + facet_wrap(~day_of_week) + geom_line() + labs(x= "Hour of Day", y="Number of Boarding", title="Average Boardings by Hour, Week, and Month")
 
 ```
+
+The Averaged number of boarding, stratified by hour of day, week and month can be seen here. We can observe the trends that weekdays have significantly more riders than weekends. Particularly there is a peak on around 3 PM on each weekday, contributing to the fact the the distribution is broadly similar across days. Some other trends that can be noticed is that Mondays in September look lower, this can be due to holidays such as Labor Day closing down many locations so people are less likely inclined to take the bus. Similarly, we that average boarding on Weds/Thurs/Fri in November are also lower which can be due to Thanksgiving Break and other holidays that have many locations close down. In addition, students could also be travelling back home which means less number of students available for Capmetro. 
+
 ### Graph2 
 ```{r, echo=FALSE, message=FALSE}
 ggplot(capmetro, aes(x=temperature, y=boarding, color=weekend)) + geom_point() + facet_wrap(~ hour_of_day) + labs(x="Temperature (°F)", y="Number of Boarding", title= "Boardings vs. Temperature Per Hour of the Day") + theme_minimal()
@@ -129,15 +145,25 @@ ggplot(capmetro, aes(x=temperature, y=boarding, color=weekend)) + geom_point() +
 
 ```
 
+
+This graph shows the relationship between temperature and number of boarding stratified by temperature. As we can see, there are higher quantities of boarding in weekdays than weekends in all hours of the day and also in various temperatures. One interesting data point is that there is more people on a weekend that use cap metro in higher temperatures. Temperature doesn't have a very noticeable effect on the number of students riding the bus as we see that the distribution remains similar for various different hours. The shape of the distribution is closer to a rectangular, uniform shape and it doesn't skew towards different temperatures, indicating that temperature may not have much of an influence.  
+
+
+\newpage
+
+
 # Question 4 
-```{r, echo=FALSE, include= FALSE}
+```{r, echo=FALSE}
 billboard <- read.csv("/Users/mahasivasubramanian/Desktop/billboard.csv")
 
 ```
 
+
+
 ### Part A 
 
-```{r, echo=FALSE,}
+
+```{r, echo=FALSE, message= FALSE}
 library(kableExtra)
 
 billboardstats <- billboard %>%
@@ -149,13 +175,22 @@ billboardstats <- billboard %>%
 billboardstats %>%
   head(10) %>%  # Display the first 10 rows
   kable("latex", col.names = c("Performer", "Song", "Weeks on Chart")) %>%
-  kable_styling(latex_options = c("striped", "hover"))
+  kable_styling(latex_options = c("striped", "hover", "hold_position"))
 
 
 ```
 
+
+
+This section showcases the top 10 performers and their songs with the most weeks on the chart. We see Imagine Dragons with the highest number of week on the charts with their song Radioactive.
+
+
+
+
+
+
 ### Part B
-```{r}
+```{r, echo=FALSE}
 new_music <- group_by(billboard, year, performer, song)
 new_music <- filter(new_music, year!= 1958 & year != 2021)
 new_music <- distinct(new_music, year, song)
@@ -166,8 +201,11 @@ ggplot(new_music) + geom_line(aes(x=year, y=music)) + labs(x="Year", y="Number o
 
 ```
 
+This line graph shows the relationship between years and number of unique songs. We see the number of unique songs spike in the year 1965 and then steadily decrease until the 2000s. This could be explained as several musical genres began to gain a lot of mainstream attention such as rock and roll, folk, and R&B. After the 2000s, there is an interesting series of rises and falls, as more pop music dominated the charts with the same songs, leading to a lack of "musical diversity". We see this number steadily increasing though, as many artists try to experiment with sounds and more artists have been introduced into the music industry and got fame. 
+
+
 ## Part C 
-```{r}
+```{r, echo=FALSE, message=FALSE}
 pop_songs <- filter(billboard, weeks_on_chart>=10)
 
 perf_hits <- pop_songs %>%
@@ -176,12 +214,17 @@ perf_hits <- pop_songs %>%
   filter(ten_week_hits >= 30)
 
 ggplot(perf_hits, aes(x= reorder(performer,ten_week_hits),y=ten_week_hits)) + geom_bar(stat = "identity", fill = "steelblue") + labs(
-    title = "Top 19 Artists with Most Ten-Week Hits on Billboard Top 100",
+    title = "Artists with Most Ten-Week Hits on Billboard Top 100",
     x = "Performer",
     y = "Number of Ten-Week Hits"
   ) + coord_flip() 
-head(pop_songs)
 
 ```
+
+This chart shows the 19 artists with the higher number of ten-week hits on billboard (ten-week hits refer to their songs staying on the billboard for more than 10 weeks). Here we see that Elton John has the highest number of ten-week hits of around 55. There also does not seem to be one minimum number of artists with ten-week hits as 5 of them ( Diamond, Alden, Strait, Oates and Paisley) tie for around 30 ten-week hits. 
+
+
+
+
 
 
